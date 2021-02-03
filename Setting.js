@@ -15,7 +15,7 @@ export default class Setting extends React.Component {
         <View  style={styles.container}>
               <TouchableOpacity 
                 style={styles.background}
-                activeOpacity={1}
+                activeOpacity={0.3}
                 onPress={this.props.modalHandler}/>
 
               <View style={styles.modal}>
@@ -33,7 +33,6 @@ export default class Setting extends React.Component {
                 date = {this.state.date}
                 onDateChange={(date)=>{this.setState({date:date})}}
                 mode = "date"/>
-
 
                 
               <TouchableOpacity onPress={()=>this.props.settingHandler(this.state.title, this.state.date)}>

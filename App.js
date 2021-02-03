@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView,ImageBackground } from 'react-native';
 import Setting from './Setting.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default class App extends React.Component {
@@ -14,6 +15,31 @@ export default class App extends React.Component {
     }
   }
   
+  async UNSAFE_componentWillMount() {
+    try {
+      const ddayString = await AsyncStorage.getItem('@dday')
+      if(ddayString == null){
+        this.setState(
+          {
+            dday: new Date(),
+            ddayTitle: '',
+          }
+        );
+      } else {
+        const dday = JSON.parse(ddayString);
+        this.setState(
+          {
+            dday: new Date(dday.date),
+            ddayTitle: dday.title,
+          }
+        );
+      }
+    } catch(e) {
+      console.log("ERR");
+    }
+  }
+  
+
   
   toggleSettingModal() {
     this.setState({
