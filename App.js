@@ -8,7 +8,7 @@ export default class App extends React.Component {
     super(props);
     this.state = {
       dday: new Date(),
-      ddayTitle: '테스트 디데이',
+      ddayTitle: '',
       chatLog: [],
       settingModal: false,
     }
@@ -22,10 +22,39 @@ export default class App extends React.Component {
   }
 
 
+  settingHandler(title, date){
+    this.setState({
+      ddayTitle : title,
+      dday : date,
+    });
+    this.toggleSettingModal();
+  }
+
+  makeDateString(){
+    return this.state.dday.getFullYear() + '년' + (this.state.dday.getMonth()+1) + '월' + this.state.dday.getDate() + '일';
+  }
+
+  makeRemainString(){
+    const distance = new Date().getTime() - this.state.dday.getTime();
+    console.log(new Date(), this.state.dday.distance / (1000*60*60*24))
+    const remain = Math.floor(distance/(1000*60*60*24));
+    if(remain<0){
+      return 'D' + remain;
+    } else if (remain>0){
+      return 'D'+remain;
+    } else if (remain===0){
+      return 'D-day';
+    }
+  }
+
+
   render() {
     return (
       <View style={styles.container}>
         <ImageBackground
+
+
+
           style={{width: '100%', height: '100%'}}
           source={require('./images/background.png')}> 
                                                                         {/*배경화면 설정*/}
@@ -43,10 +72,10 @@ export default class App extends React.Component {
               {this.state.ddayTitle}까지            
           </Text>
           <Text style={styles.ddayText}>
-            D-123           
+              {this.makeRemainString()}
           </Text>
           <Text style={styles.dateText}>
-            2020년 11월 32일
+              {this.makeDateString()}
           </Text>
         </View>
 
@@ -65,7 +94,8 @@ export default class App extends React.Component {
         </View>
 
 
-          {this.state.settingModal ? <Setting modalHandler = {()=>this.toggleSettingModal()}/> :<></>}
+          {this.state.settingModal ? <Setting modalHandler = {()=>this.toggleSettingModal()}
+                                              settingHandler = {(title, date)=>this.settingHandler(title,date)}/>  : <></>}
 
 
        </ImageBackground> 
