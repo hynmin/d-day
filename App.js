@@ -12,12 +12,22 @@ export default class App extends React.Component {
       ddayTitle: '',
       chatLog: [],
       settingModal: false,
+      chatInput:'',
     }
   }
   
   async UNSAFE_componentWillMount() {
     try {
-      const ddayString = await AsyncStorage.getItem('@dday')
+      const ddayString = await AsyncStorage.getItem('@dday');
+      const chatLogString = await AsyncStorage.getItem('@chat');
+
+      if(chatLogString == null){
+        this.setState({chatLog: []});
+      } else {
+        const chatLog = JSON.parse(chatLogString);
+        this.setState({chatLog: chatLog});
+      }
+
       if(ddayString == null){
         this.setState(
           {
@@ -59,6 +69,7 @@ export default class App extends React.Component {
   makeDateString(){
     return this.state.dday.getFullYear() + '년' + (this.state.dday.getMonth()+1) + '월' + this.state.dday.getDate() + '일';
   }
+                                                                        //현재 날짜 표기
 
   makeRemainString(){
     const distance = new Date().getTime() - this.state.dday.getTime();
@@ -73,6 +84,39 @@ export default class App extends React.Component {
     }
   }
 
+
+  chatHandler() {
+    this.setState({
+      chatLog: [ ...this.state.chatLog, this.makeDateString() + ' : ' + this.state.chatInput],
+      chatInput: '',
+    },
+    async ()=>{
+      const chatLogString = JSON.stringify(this.state.chatLog);
+      await AsyncStorage.setItem('@chat', chatLogString);           //asyncStroage에 string이 저장. chatLog를 문자열로 만들얼줌 @chat키로 저장
+    });
+  }
+
+
+  async settingHandler(title, date) {
+     this.setState({
+       ddayTitle: title,
+       dday: date,
+     });
+    try {
+      const dday = {
+        title: title,
+        date: date,
+      }
+      const ddayString = JSON.stringify(dday);
+      await AsyncStorage.setItem('@dday', ddayString);
+    } catch (e) {
+      console.log(e);
+    }
+     this.toggleSettingModal();
+   }
+
+
+  
 
   render() {
     return (
@@ -108,10 +152,15 @@ export default class App extends React.Component {
 
         <View style={styles.chatView}>
           <ScrollView style={styles.chatScrollView}>
+            {this.state.chatLog.map((chat)=>{return <Text style = {styles.chat}> {chat} </Text> } ) }
           </ScrollView>
          <View style={styles.chatControl}>
-          <TextInput style={styles.chatInput}/>
-            <TouchableOpacity style={styles.sendButton}>
+          <TextInput 
+          style={styles.chatInput}
+          value={this.state.chatInput}
+          onChangeText={(changedText)=>{this.setState({chatInput : changedText})}}/>
+            <TouchableOpacity style={styles.sendButton}
+             onPress = {()=>this.chatHandler()}>
             <Text>
               전송
             </Text>
@@ -135,6 +184,12 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  chat: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4A4A4A',
+    margin: 2,
   },
   settingView: {
     flex: 1,
